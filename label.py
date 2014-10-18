@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import socket
 import Image
 import re
 import PIL.ImageOps
@@ -15,7 +14,7 @@ class Label:
     Used to build a ZPL2 label.
     
     all dimensions are given in millimeters and automatically converted to
-    printer dot units.
+    printer dot units. 
     '''
     
     def __init__(self, height, width=110.0, dpmm=12.0):
@@ -139,20 +138,25 @@ class Label:
         return self.code+"^XZ"
     
     def preview(self, index=0):
+        '''
+        Opens rendered preview using Labelary API. 
+        
+        Not all commands are supported, see http://labelary.com for more information.
+        '''
         Image.open(io.BytesIO(
             urllib.urlopen('http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' %
                 (self.dpmm, self.width/25.4, self.height/25.4, index),
                 self.dumpZPL()).read())).show()
 
 if __name__ == "__main__":
-    l = Label(65,60)
+    l = Label(30,60)
     height = 0
     l.origin(0,0)
     l.write_text("Problem?", char_height=10, char_width=8, line_width=60, justification='C')
     l.endorigin()
 
     height += 13
-    image_width = 55
+    image_width = 5
     l.origin((l.width-image_width)/2, height)
     image_height = l.write_graphic(Image.open('trollface-large.png'), image_width)
     l.endorigin()
