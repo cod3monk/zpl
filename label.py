@@ -71,6 +71,20 @@ class Label:
         assert re.match(r'[A-Z0-9]', font), "invalid font"
         self.code += "^CF%c,%i,%i" % (font, height*self.dpmm, width*self.dpmm)
     
+    def _convert_image(self, image, width, height, mode='ASCII'):
+        '''
+        converts *image* (of type PIL.Image) to ZPL conform ASCII
+        
+        more modes will be supported in future
+        '''
+        image = image.resize((int(width*self.dpmm), int(height*self.dpmm))).convert('1')
+        # invert, otherwise we get reversed B/W
+        for x in range(image.size[0]):
+            for y in range(image.size[1]):
+                image.putpixel((x,y), 255-image.getpixel((x,y)))
+        return image.tostring().encode('hex').upper()
+        
+    
     def upload_graphic(self, name, image, width, height=0):
         """in millimeter"""
         if not height:
@@ -81,9 +95,7 @@ class Label:
         totalbytes = math.ceil(width*self.dpmm/8.0)*height*self.dpmm
         bytesperrow = math.ceil(width*self.dpmm/8.0)
         
-        image_inverted = PIL.ImageOps.invert(image)
-        resized_bw_image = image_inverted.resize((width*self.dpmm, height*self.dpmm)).convert('1')
-        data = resized_bw_image.tostring().encode('hex').upper()
+        data = self._convert_image(image, width, height)
         
         self.code += "~DGR:%s.GRF,%i,%i,%s" % (name, totalbytes, bytesperrow, data)
         
@@ -102,12 +114,7 @@ class Label:
         totalbytes = math.ceil(width*self.dpmm/8.0)*height*self.dpmm
         bytesperrow = math.ceil(width*self.dpmm/8.0)
         
-        image = image.resize((int(width*self.dpmm), int(height*self.dpmm))).convert('1')
-        # invert, otherwise we get reversed B/W
-        for x in range(image.size[0]):
-            for y in range(image.size[1]):
-                image.putpixel((x,y), 255-image.getpixel((x,y)))
-        data = image.tostring().encode('hex').upper()
+        data = self._convert_image(image, width, height)
         
         self.code += "^GFA,%i,%i,%i,%s" % (totalbytes, totalbytes, bytesperrow, data)
         
