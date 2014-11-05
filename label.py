@@ -70,18 +70,27 @@ class Label:
         assert re.match(r'[A-Z0-9]', font), "invalid font"
         self.code += "^CF%c,%i,%i" % (font, height*self.dpmm, width*self.dpmm)
     
-    def _convert_image(self, image, width, height, mode='ASCII'):
+    def _convert_image(self, image, width, height, compression_type='A'):
         '''
-        converts *image* (of type PIL.Image) to ZPL conform ASCII
+        converts *image* (of type PIL.Image) to a ZPL2 format
         
-        more modes will be supported in future
+        compression_type can be one of ['A', 'B', 'C']
+        
+        returns data
         '''
         image = image.resize((int(width*self.dpmm), int(height*self.dpmm))).convert('1')
         # invert, otherwise we get reversed B/W
         for x in range(image.size[0]):
             for y in range(image.size[1]):
                 image.putpixel((x,y), 255-image.getpixel((x,y)))
-        return image.tostring().encode('hex').upper()
+        
+        if compression_type == "A":
+            return image.tostring().encode('hex').upper()
+        # TODO this is not working
+        #elif compression_type == "B":
+        #    return image.tostring() 
+        else:
+            raise Exception("unsupported compression type")
         
     
     def upload_graphic(self, name, image, width, height=0):
@@ -96,11 +105,11 @@ class Label:
         
         data = self._convert_image(image, width, height)
         
-        self.code += "~DGR:%s.GRF,%i,%i,%s" % (name, totalbytes, bytesperrow, data)
+        self.code += "~DG%s.GRF,%i,%i,%s" % (name, totalbytes, bytesperrow, data)
         
         return height
     
-    def write_graphic(self, image, width, height=0):
+    def write_graphic(self, image, width, height=0, compression_type="A"):
         """
         embeddes image with given width
         
@@ -113,9 +122,15 @@ class Label:
         totalbytes = math.ceil(width*self.dpmm/8.0)*height*self.dpmm
         bytesperrow = math.ceil(width*self.dpmm/8.0)
         
-        data = self._convert_image(image, width, height)
+        data = self._convert_image(image, width, height, compression_type=compression_type)
         
-        self.code += "^GFA,%i,%i,%i,%s" % (totalbytes, totalbytes, bytesperrow, data)
+        if compression_type == "A":
+            self.code += "^GFA,%i,%i,%i,%s" % (len(data), totalbytes, bytesperrow, data)
+        # TODO this is not working:
+        elif compression_type == "B":
+            self.code += "^GFB,%i,%i,%i,%s" % (len(data), totalbytes, bytesperrow, data)
+        else:
+            raise Exception("Unsupported compression type.")
         
         return height
     
@@ -128,11 +143,18 @@ class Label:
         assert color in 'BW', "invalid color"
         self.code += "^GE,%i,%i,%i,%c" % (width, height, thickness, color)
     
-    def print_graphics(self, name):
-        self.code += "^XGR:%s,1,1" % (name)
+    def print_graphic(self, name, scale_x=1, scale_y=1):
+        self.code += "^XG%s,%i,%i" % (name, scale_x, scale_y)
     
     def run_script(self, filename):
         self.code += "^XF%s^FS"
+    
+    def write_field_number(number, name=None):
+        self.code += "^FN%i" % number
+        if name:
+            assert re.match("^[a-zA-Z ]+$", name), "name may only contain alphanumerical " + \
+                                                   "characters and spaces"
+            self.code += '"%s"' % name
     
     def dumpZPL(self):
         return self.code+"^XZ"
@@ -143,10 +165,13 @@ class Label:
         
         Not all commands are supported, see http://labelary.com for more information.
         '''
-        Image.open(io.BytesIO(
-            urllib.urlopen('http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' %
-                (self.dpmm, self.width/25.4, self.height/25.4, index),
-                self.dumpZPL()).read())).show()
+        try:
+            Image.open(io.BytesIO(
+                urllib.urlopen('http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' %
+                    (self.dpmm, self.width/25.4, self.height/25.4, index),
+                    self.dumpZPL()).read())).show()
+        except IOError:
+            raise Exception("Invalid preview received, mostlikely bad ZPL2 code uploaded.")
 
 if __name__ == "__main__":
     l = Label(30,60)
