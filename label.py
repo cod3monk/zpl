@@ -149,15 +149,29 @@ class Label:
     def run_script(self, filename):
         self.code += "^XF%s^FS"
     
-    def write_field_number(number, name=None):
+    def write_field_number(self, number, name=None, char_height=None, char_width=None, font='0',
+                           orientation='N', line_width=None, max_line=1, line_spaces=0,
+                           justification='L', hanging_indent=0):
+        if char_height and char_width and font and orientation:
+            assert re.match(r'[A-Z0-9]', font), "invalid font"
+            assert orientation in 'NRIB', "invalid orientation"
+            self.code += "^A%c%c,%i,%i" % (font, orientation, char_height*self.dpmm,
+                                           char_width*self.dpmm)
+        if line_width:
+            assert justification in "LCRJ", "invalid justification"
+            self.code += "^FB%i,%i,%i,%c,%i" % (line_width*self.dpmm, max_line, line_spaces, 
+                                                justification, hanging_indent)
         self.code += "^FN%i" % number
         if name:
-            assert re.match("^[a-zA-Z ]+$", name), "name may only contain alphanumerical " + \
+            assert re.match("^[a-zA-Z0-9 ]+$", name), "name may only contain alphanumerical " + \
                                                    "characters and spaces"
             self.code += '"%s"' % name
     
     def dumpZPL(self):
         return self.code+"^XZ"
+    
+    def saveFormat(self, name):
+        self.code= self.code[:3] + ("^DF%s^FS" % name) + self.code[3:]
     
     def preview(self, index=0):
         '''
