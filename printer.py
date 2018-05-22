@@ -13,7 +13,7 @@ class Printer:
         self._stat = {}
     
     def send_job(self, zpl2):
-        print zpl2
+        print(zpl2)
     
     def request_info(self, command):
         raise Exception("not implemented in this printer class")
@@ -45,7 +45,7 @@ class Printer:
                          r'(?P<under_temp>[^,]+),' +
                          '(?P<over_temp>[^,]+)\x03', ret[0])
             self._stat.update(m.groupdict())
-            print ret[1].__repr__()
+            print(ret[1].__repr__())
             m = re.match('\x02(?P<func_settings>[^,]+),' +
                          r'[^,]+,' +  # unused
                          r'(?P<head_up>[^,]+),' +

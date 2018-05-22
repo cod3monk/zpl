@@ -86,7 +86,7 @@ class Label:
                 image.putpixel((x,y), 255-image.getpixel((x,y)))
 
         if compression_type == "A":
-            return image.tobytes().encode('hex').upper()
+            return image.tobytes().hex().upper()
         # TODO this is not working
         #elif compression_type == "B":
         #    return image.tostring()
@@ -181,10 +181,9 @@ class Label:
         Not all commands are supported, see http://labelary.com for more information.
         '''
         try:
-            Image.open(io.BytesIO(
-                urllib.urlopen('http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' %
-                    (self.dpmm, self.width/25.4, self.height/25.4, index),
-                    self.dumpZPL()).read())).show()
+            url = 'http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' % (self.dpmm, self.width/25.4, self.height/25.4, index)
+            res = urllib.request.urlopen(url, self.dumpZPL().encode()).read()
+            Image.open(io.BytesIO(res)).show()
         except IOError:
             raise Exception("Invalid preview received, mostlikely bad ZPL2 code uploaded.")
 
@@ -207,5 +206,5 @@ if __name__ == "__main__":
                  justification='C')
     l.endorigin()
 
-    print l.dumpZPL()
+    print(l.dumpZPL())
     l.preview()
