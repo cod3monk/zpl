@@ -7,7 +7,10 @@ import PIL.ImageOps
 import sys
 import math
 import webbrowser
-import urllib
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 import io
 
 class Label:
@@ -79,11 +82,10 @@ class Label:
 
         returns data
         '''
-        image = image.resize((int(width*self.dpmm), int(height*self.dpmm))).convert('1')
+        image = image.resize((int(width*self.dpmm), int(height*self.dpmm)))
         # invert, otherwise we get reversed B/W
-        for x in range(image.size[0]):
-            for y in range(image.size[1]):
-                image.putpixel((x,y), 255-image.getpixel((x,y)))
+        # https://stackoverflow.com/a/38378828
+        image = PIL.ImageOps.invert(image.convert('L')).convert('1')
 
         if compression_type == "A":
             return image.tobytes().hex().upper()
@@ -182,7 +184,7 @@ class Label:
         '''
         try:
             url = 'http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' % (self.dpmm, self.width/25.4, self.height/25.4, index)
-            res = urllib.request.urlopen(url, self.dumpZPL().encode()).read()
+            res = urlopen(url, self.dumpZPL().encode()).read()
             Image.open(io.BytesIO(res)).show()
         except IOError:
             raise Exception("Invalid preview received, mostlikely bad ZPL2 code uploaded.")
