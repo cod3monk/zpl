@@ -1,4 +1,7 @@
-#!/bin/env/python
+#!/usr/bin/env python
+
+from __future__ import division
+from __future__ import print_function
 
 import socket
 import re
@@ -82,7 +85,7 @@ class Printer:
         return self._cfg
     
     def get_label_dimensions(self):
-        length = int(self.get_printer_status()['label_length'])/self.get_dpmm()
+        length = int(self.get_printer_status()['label_length'])//self.get_dpmm()
         return (length, width)
     
     def get_dpi(self):

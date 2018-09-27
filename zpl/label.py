@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from __future__ import division
+from __future__ import print_function
+
 #import Image
 from PIL import Image
 import re
@@ -7,6 +10,7 @@ import PIL.ImageOps
 import sys
 import math
 import webbrowser
+import os.path
 try:
     from urllib.request import urlopen
 except ImportError:
@@ -88,7 +92,7 @@ class Label:
         image = PIL.ImageOps.invert(image.convert('L')).convert('1')
 
         if compression_type == "A":
-            return image.tobytes().hex().upper()
+            return image.tobytes().encode('hex').upper()
         # TODO this is not working
         #elif compression_type == "B":
         #    return image.tostring()
@@ -167,7 +171,7 @@ class Label:
         self.code += "^FN%i" % number
         if name:
             assert re.match("^[a-zA-Z0-9 ]+$", name), "name may only contain alphanumerical " + \
-                                                   "characters and spaces"
+                "characters and spaces"
             self.code += '"%s"' % name
 
     def dumpZPL(self):
@@ -183,24 +187,27 @@ class Label:
         Not all commands are supported, see http://labelary.com for more information.
         '''
         try:
-            url = 'http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' % (self.dpmm, self.width/25.4, self.height/25.4, index)
+            url = 'http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' % (
+                self.dpmm, self.width/25.4, self.height/25.4, index)
             res = urlopen(url, self.dumpZPL().encode()).read()
             Image.open(io.BytesIO(res)).show()
         except IOError:
             raise Exception("Invalid preview received, mostlikely bad ZPL2 code uploaded.")
 
-if __name__ == "__main__":
+
+def __main__():
     l = Label(30,60)
     height = 0
     l.origin(0,0)
     l.write_text("Problem?", char_height=10, char_width=8, line_width=60, justification='C')
     l.endorigin()
 
-
     height += 13
     image_width = 5
     l.origin((l.width-image_width)/2, height)
-    image_height = l.write_graphic(Image.open('trollface-large.png'), image_width)
+    image_height = l.write_graphic(
+        Image.open(os.path.join(os.path.dirname(__file__), 'trollface-large.png')),
+        image_width)
     l.endorigin()
 
     l.origin(0, height+image_height)
@@ -210,3 +217,7 @@ if __name__ == "__main__":
 
     print(l.dumpZPL())
     l.preview()
+
+
+if __name__ == "__main__":
+    __main__()
