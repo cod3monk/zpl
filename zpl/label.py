@@ -64,7 +64,7 @@ class Label:
                 self.code += "^A%c%c,%i,%i" % (font, orientation, char_height*self.dpmm,
                                                char_width*self.dpmm)
             elif re.match(r'[REBA]?:[A-Z0-9\_]+\.(FNT|TTF|TTE)', font):
-                self.code += "^A@%c,%i,%i,%c" % (orientation, char_height*self.dpmm,
+                self.code += "^A@%c,%i,%i,%s" % (orientation, char_height*self.dpmm,
                                                char_width*self.dpmm, font)
             else:
                 raise ValueError("Invalid font.")
