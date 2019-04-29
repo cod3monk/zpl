@@ -60,11 +60,11 @@ class Label:
                    line_width=None, max_line=1, line_spaces=0, justification='L', hanging_indent=0):
         if char_height and char_width and font and orientation:
             assert orientation in 'NRIB', "invalid orientation"
-            if re.match(r'[A-Z0-9]', font):
+            if re.match(r'^[A-Z0-9]$', font):
                 self.code += "^A%c%c,%i,%i" % (font, orientation, char_height*self.dpmm,
                                                char_width*self.dpmm)
             elif re.match(r'[REBA]?:[A-Z0-9\_]+\.(FNT|TTF|TTE)', font):
-                self.code += "^A@%c,%i,%i,%c" % (orientation, char_height*self.dpmm,
+                self.code += "^A@%c,%i,%i,%s" % (orientation, char_height*self.dpmm,
                                                char_width*self.dpmm, font)
             else:
                 raise ValueError("Invalid font.")
