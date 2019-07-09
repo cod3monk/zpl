@@ -97,7 +97,8 @@ class Label:
         image = PIL.ImageOps.invert(image.convert('L')).convert('1')
 
         if compression_type == "A":
-            return image.tobytes().encode('hex').upper()
+            # return image.tobytes().encode('hex').upper()
+            return image.tobytes().hex().upper()
         # TODO this is not working
         #elif compression_type == "B":
         #    return image.tostring()
@@ -179,6 +180,25 @@ class Label:
                 "characters and spaces"
             self.code += '"%s"' % name
 
+    def write_bar_code(self, text, height, barcode_type, oritentation='N', check_digit='N',
+                       print_interpretation_line='Y', print_interpretation_line_above='N'):
+        # guard for only currently allowed bar codes
+        assert barcode_type in ['2', '3'], "invalid barcode type"
+        
+        if barcode_type == '2':
+            bar_code_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, oritentation, height, 
+                                                      print_interpretation_line,
+                                                      print_interpretation_line_above, 
+                                                      check_digit)
+        elif barcode_type == '3':
+            bar_code_zpl = '^B%s%s,%s,%i,%s,%s' % (barcode_type, oritentation,
+                                                      check_digit, height,
+                                                      print_interpretation_line,
+                                                      print_interpretation_line_above)
+
+        self.code += bar_code_zpl
+        # self.code += bar_code_zpl + '^FD' + text
+
     def dumpZPL(self):
         return self.code+"^XZ"
 
@@ -201,7 +221,7 @@ class Label:
 
 
 def __main__():
-    l = Label(30,60)
+    l = Label(100,60)
     height = 0
     l.origin(0,0)
     l.write_text("Problem?", char_height=10, char_width=8, line_width=60, justification='C')
@@ -215,7 +235,15 @@ def __main__():
         image_width)
     l.endorigin()
 
-    l.origin(0, height+image_height)
+    height += 13
+    l.origin(0, height)
+    l.write_bar_code(text='123456', height=150, barcode_type='2')
+    l.write_text('123456', char_height=5, char_width=4, line_width=60,
+                 justification='C')
+    l.endorigin()
+
+    height += image_height
+    l.origin(0, height)
     l.write_text('Happy Troloween!', char_height=5, char_width=4, line_width=60,
                  justification='C')
     l.endorigin()
