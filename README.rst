@@ -8,9 +8,11 @@ Example use
 
 .. code-block:: python
 
-    from zpl import label 
+    import os
+    from PIL import Image
+    import zpl
 
-    l = Label(100,60)
+    l = zpl.Label(100,60)
     height = 0
     l.origin(0,0)
     l.write_text("Problem?", char_height=10, char_width=8, line_width=60, justification='C')
@@ -20,7 +22,7 @@ Example use
     image_width = 5
     l.origin((l.width-image_width)/2, height)
     image_height = l.write_graphic(
-        Image.open(os.path.join(os.path.dirname(__file__), 'trollface-large.png')),
+        Image.open(os.path.join(os.path.dirname(zpl.__file__), 'trollface-large.png')),
         image_width)
     l.endorigin()
 
