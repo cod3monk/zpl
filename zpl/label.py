@@ -183,18 +183,23 @@ class Label:
     def write_bar_code(self, height, barcode_type, oritentation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N'):
         # guard for only currently allowed bar codes
-        assert barcode_type in ['2', '3'], "invalid barcode type"
+        assert barcode_type in ['2', '3', 'U'], "invalid barcode type"
         
         if barcode_type == '2':
             bar_code_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, oritentation, height, 
-                                                      print_interpretation_line,
-                                                      print_interpretation_line_above, 
-                                                      check_digit)
+                                                   print_interpretation_line,
+                                                   print_interpretation_line_above, 
+                                                   check_digit)
         elif barcode_type == '3':
             bar_code_zpl = '^B%s%s,%s,%i,%s,%s' % (barcode_type, oritentation,
-                                                      check_digit, height,
-                                                      print_interpretation_line,
-                                                      print_interpretation_line_above)
+                                                   check_digit, height,
+                                                   print_interpretation_line,
+                                                   print_interpretation_line_above)
+        elif barcode_type == 'U':
+            bar_code_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, oritentation, height,
+                                                   print_interpretation_line, 
+                                                   print_interpretation_line_above,
+                                                   check_digit)
 
         self.code += bar_code_zpl
         # self.code += bar_code_zpl + '^FD' + text
@@ -235,14 +240,13 @@ def __main__():
         image_width)
     l.endorigin()
 
-    height += 13
-    l.origin(0, height)
-    l.write_bar_code(height=150, barcode_type='2')
-    l.write_text('123456', char_height=5, char_width=4, line_width=60,
-                 justification='C')
+    height += image_height + 5
+    l.origin(22, height)
+    l.write_bar_code(height=70, barcode_type='U', check_digit='Y')
+    l.write_text('07000002198')
     l.endorigin()
 
-    height += image_height
+    height += 20
     l.origin(0, height)
     l.write_text('Happy Troloween!', char_height=5, char_width=4, line_width=60,
                  justification='C')
