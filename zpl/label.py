@@ -202,7 +202,6 @@ class Label:
                                                    check_digit)
 
         self.code += barcode_zpl
-        # self.code += barcode_zpl + '^FD' + text
 
     def dumpZPL(self):
         return self.code+"^XZ"
