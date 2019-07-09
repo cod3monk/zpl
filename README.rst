@@ -8,30 +8,37 @@ Example use
 
 .. code-block:: python
 
-   from zpl import Label
+    from zpl import label 
 
-   l = Label(65,60)
-   height = 0
-   l.origin(0,0)
-   l.write_text("Problem?", char_height=10, char_width=8, line_width=60, 
-   justification='C')
-   l.endorigin()
+    l = Label(100,60)
+    height = 0
+    l.origin(0,0)
+    l.write_text("Problem?", char_height=10, char_width=8, line_width=60, justification='C')
+    l.endorigin()
 
-   height += 13
-   image_width = 55
-   l.origin((l.width-image_width)/2, height)
-   image_height = l.write_graphic(Image.open('trollface-large.png'), 
-   image_width)
-   l.endorigin()
+    height += 13
+    image_width = 5
+    l.origin((l.width-image_width)/2, height)
+    image_height = l.write_graphic(
+        Image.open(os.path.join(os.path.dirname(__file__), 'trollface-large.png')),
+        image_width)
+    l.endorigin()
 
-   l.origin(0, height+image_height)
-   l.write_text('Happy Troloween!', char_height=5, char_width=4, 
-   line_width=60,
-                justification='C')
-   l.endorigin()
+    height += 13
+    l.origin(0, height)
+    l.write_bar_code(height=150, barcode_type='2')
+    l.write_text('123456', char_height=5, char_width=4, line_width=60,
+                 justification='C')
+    l.endorigin()
 
-   print(l.dumpZPL())
-   l.preview()
+    height += image_height
+    l.origin(0, height)
+    l.write_text('Happy Troloween!', char_height=5, char_width=4, line_width=60,
+                 justification='C')
+    l.endorigin()
+
+    print(l.dumpZPL())
+    l.preview()
 
 This will display the following preview image, generated using the `Labelary API <http://labelary.com/>`_:
 `label preview <http://api.labelary.com/v1/printers/12dpmm/labels/2.362205x1.181102/0/^XA^FO0,0^A0N,120,96^FB720,1,0,C,0^FDProblem?^FS^FO330,156^GFA,768,384,8,00003FFFC0000000000600000FF0000000180200C01F8000003008000000600000204080440D10000041080000000C000082420000CC020000840002000102000100200001008000010040000000800002000FF80000010006003F84003E01800C036F8200E100C01402307101FE01202878000E030000A071060200010001504201FC0000007C50821000000106C090A438000001800010A466001E0040115084A183C80070103042107009C044382060104E0800803A20300C40E00700F840380FE03C0003D8001A047021F83C588004027E2021845880020227E021047880020141F82187F8800100C07FFFFFF88001004047FFFFF88000803040FFFFF88000C00880419970800060078001117080001241C00012608000089038C237C08000060401FFF8008000011080000020000000C21040E0044000003863C0010840000006060000104000000180380080400000006000000080000000180000008000000007800001000000000038000600000000000380180000000000003FC000^FS^FO0,204^A0N,60,48^FB720,1,0,C,0^FDHappy Troloween!^FS^XZ>`_

@@ -180,7 +180,7 @@ class Label:
                 "characters and spaces"
             self.code += '"%s"' % name
 
-    def write_bar_code(self, text, height, barcode_type, oritentation='N', check_digit='N',
+    def write_bar_code(self, height, barcode_type, oritentation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N'):
         # guard for only currently allowed bar codes
         assert barcode_type in ['2', '3'], "invalid barcode type"
@@ -237,7 +237,7 @@ def __main__():
 
     height += 13
     l.origin(0, height)
-    l.write_bar_code(text='123456', height=150, barcode_type='2')
+    l.write_bar_code(height=150, barcode_type='2')
     l.write_text('123456', char_height=5, char_width=4, line_width=60,
                  justification='C')
     l.endorigin()
