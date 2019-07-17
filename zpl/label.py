@@ -180,24 +180,24 @@ class Label:
                 "characters and spaces"
             self.code += '"%s"' % name
 
-    def write_barcode(self, height, barcode_type, oritentation='N', check_digit='N',
+    def write_barcode(self, height, barcode_type, orientation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N'):
         # guard for only currently allowed bar codes
         assert barcode_type in ['2', '3', 'U'], "invalid barcode type"
-        
+
         if barcode_type == '2':
-            barcode_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, oritentation, height, 
+            barcode_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, orientation, height,
                                                    print_interpretation_line,
-                                                   print_interpretation_line_above, 
+                                                   print_interpretation_line_above,
                                                    check_digit)
         elif barcode_type == '3':
-            barcode_zpl = '^B%s%s,%s,%i,%s,%s' % (barcode_type, oritentation,
+            barcode_zpl = '^B%s%s,%s,%i,%s,%s' % (barcode_type, orientation,
                                                    check_digit, height,
                                                    print_interpretation_line,
                                                    print_interpretation_line_above)
         elif barcode_type == 'U':
-            barcode_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, oritentation, height,
-                                                   print_interpretation_line, 
+            barcode_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, orientation, height,
+                                                   print_interpretation_line,
                                                    print_interpretation_line_above,
                                                    check_digit)
 
