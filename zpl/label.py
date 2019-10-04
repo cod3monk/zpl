@@ -83,6 +83,19 @@ class Label:
         assert re.match(r'[A-Z0-9]', font), "invalid font"
         self.code += "^CF%c,%i,%i" % (font, height*self.dpmm, width*self.dpmm)
 
+    def set_international_font(self, code=28):
+        """
+        Change international font (charsets 0-13, 15, 27, 28, 31, 33-36 only)
+        """
+        assert re.match(r'[0-9]', str(code)), "invalid code"
+        if code < 14:
+            assert code > 0
+        elif code > 32:
+            assert code <= 36
+        else:
+            assert code in [15, 27, 28, 31]
+        self.code += "^CI%c" % code
+
     def _convert_image(self, image, width, height, compression_type='A'):
         '''
         converts *image* (of type PIL.Image) to a ZPL2 format
