@@ -94,7 +94,7 @@ class Label:
             assert code <= 36
         else:
             assert code in [15, 27, 28, 31]
-        self.code += "^CI%c" % code
+        self.code += "^CI%s" % code
 
     def _convert_image(self, image, width, height, compression_type='A'):
         '''
