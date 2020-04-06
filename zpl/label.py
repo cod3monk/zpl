@@ -150,11 +150,11 @@ class Label:
     def draw_box(self, width, height, thickness=1, color='B', rounding=0):
         assert color in 'BW', "invalid color"
         assert rounding <= 8, "invalid rounding"
-        self.code += "^GB,%i,%i,%i,%c,%i" % (width, height, thickness, color, rounding)
+        self.code += "^GB%i,%i,%i,%c,%i" % (width, height, thickness, color, rounding)
 
     def draw_ellipse(self, width, height, thickness=1, color='B'):
         assert color in 'BW', "invalid color"
-        self.code += "^GE,%i,%i,%i,%c" % (width, height, thickness, color)
+        self.code += "^GE%i,%i,%i,%c" % (width, height, thickness, color)
 
     def print_graphic(self, name, scale_x=1, scale_y=1):
         self.code += "^XG%s,%i,%i" % (name, scale_x, scale_y)
