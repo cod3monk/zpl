@@ -244,7 +244,7 @@ class TCPPrinter(Printer):
             self.socket = socket.create_connection((host, port), timeout=socket_timeout)
         except socket.timeout:
             self.log(args, syslog.LOG_EMERG, 'Error:Socket Timeout')
-            exit(1)
+            raise
         except:
             lines = traceback.format_exc().splitlines()
             text = re.sub("\s+","",traceback.format_exc().rstrip())
@@ -260,7 +260,7 @@ class TCPPrinter(Printer):
             self.socket.sendall(zpl2.encode('iso8859-1'))
         except socket.timeout:
             syslog.syslog(syslog.LOG_CRIT,'Error:Socket Timeout')
-            exit(1)
+            raise
         except:
             lines = traceback.format_exc().splitlines()
             text = re.sub("\s+","",traceback.format_exc().rstrip())
