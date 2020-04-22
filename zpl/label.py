@@ -181,25 +181,40 @@ class Label:
             self.code += '"%s"' % name
 
     def write_barcode(self, height, barcode_type, orientation='N', check_digit='N',
-                       print_interpretation_line='Y', print_interpretation_line_above='N'):
+                       print_interpretation_line='Y', print_interpretation_line_above='N',
+                       magnification=1, errorCorrection='Q', mask='7'):
+        # TODO split into multiple functions?
+        # TODO support all ^B barcode types
         # guard for only currently allowed bar codes
-        assert barcode_type in ['2', '3', 'U'], "invalid barcode type"
+        assert barcode_type in '23QU', "invalid barcode type"
 
         if barcode_type == '2':
             barcode_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, orientation, height,
-                                                   print_interpretation_line,
-                                                   print_interpretation_line_above,
-                                                   check_digit)
+                                                  print_interpretation_line,
+                                                  print_interpretation_line_above,
+                                                  check_digit)
         elif barcode_type == '3':
             barcode_zpl = '^B%s%s,%s,%i,%s,%s' % (barcode_type, orientation,
-                                                   check_digit, height,
-                                                   print_interpretation_line,
-                                                   print_interpretation_line_above)
+                                                  check_digit, height,
+                                                  print_interpretation_line,
+                                                  print_interpretation_line_above)
+        elif barcode_type == 'Q':
+            assert orientation == 'N', 'QR Code orientation may only be N'
+            model = 2  # enchanced model, always recommended according to ZPL II documetation
+            assert magnification in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                                     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], \
+                'QR Code maginification may be 1 - 10.'
+            assert errorCorrection in 'HQML', 'QR Code errorCorrection may be H (more reliable, ' \
+                'less dense), Q, M or L (less reliable, more dense).'
+            assert mask in [1, 2, 3, 4, 5, 6, 7, '1', '2', '3', '4', '5', '6', '7'], \
+                'QR Code mask may be 1 - 7.'
+            barcode_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, orientation,
+                                                  model, magnification, errorCorrection, mask)
         elif barcode_type == 'U':
             barcode_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, orientation, height,
-                                                   print_interpretation_line,
-                                                   print_interpretation_line_above,
-                                                   check_digit)
+                                                  print_interpretation_line,
+                                                  print_interpretation_line_above,
+                                                  check_digit)
 
         self.code += barcode_zpl
 
@@ -225,7 +240,7 @@ class Label:
 
 
 def __main__():
-    l = Label(100,60)
+    l = Label(100,80)
     height = 0
     l.origin(0,0)
     l.write_text("Problem?", char_height=10, char_width=8, line_width=60, justification='C')
@@ -243,6 +258,12 @@ def __main__():
     l.origin(22, height)
     l.write_barcode(height=70, barcode_type='U', check_digit='Y')
     l.write_text('07000002198')
+    l.endorigin()
+
+    height += 20
+    l.origin(22, height)
+    l.write_barcode(height=None, barcode_type='Q', magnification=4)
+    l.write_text('https://github.com/cod3monk/zpl')
     l.endorigin()
 
     height += 20
