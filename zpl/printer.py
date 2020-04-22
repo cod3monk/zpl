@@ -5,12 +5,11 @@ from __future__ import print_function
 
 import socket
 import re
-import syslog
-import time
-from datetime import datetime
-import sys, traceback
+import logging
 import os
-from tzlocal import get_localzone
+import sys
+
+log = logging.getLogger(__name__)
 
 class Printer:
     '''
@@ -220,83 +219,58 @@ class TCPPrinter(Printer):
     '''
     This class allows to interface with a ZPL2 printer via a TCP port.
     '''
-
-    def log(self, args, level, text):
-        syslog.syslog(level, text)
-        name = os.path.basename(__file__)
-
-        if args.utc:
-            now = datetime.utcnow()
-            tz = ' [GMT] '
-        else:
-            now = datetime.now()
-            tz = ' ' + str(get_localzone()) + ' '
-
-        if args.debug:
-            print(now.strftime("%Y-%m-%d %H:%M:%S" + tz) + name + ' [' + str(time.process_time()) + '] > ' + text);
-        elif (level == 'syslog.LOG_EMERG') | (level == 'syslog.LOG_CRIT'):
-            print('[' + str(time.process_time()) + ']' + text)
-
-    def __init__(self, args, host, port=9100, socket_timeout=5):
+    def __init__(self, host, port=9100, socket_timeout=5):
         try:
-            start = time.time()
-            self.log(args, syslog.LOG_INFO, 'Socket create:' + host + ':' + str(port))
+            log.debug('Socket create: {}:{}'.format(host, port))
             self.socket = socket.create_connection((host, port), timeout=socket_timeout)
         except socket.timeout:
-            self.log(args, syslog.LOG_EMERG, 'Error:Socket Timeout')
+            log.error('Socket create timeout')
             raise
         except:
-            lines = traceback.format_exc().splitlines()
-            text = re.sub("\s+","",traceback.format_exc().rstrip())
-            self.log(args, syslog.LOG_EMERG, "Error:%s -> %s" % (lines[-1],text))
+            log.exception('Socket create exception: {}'.format(sys.exc_info()[1]))
             raise
         finally:
-            self.log(args, syslog.LOG_INFO, 'End in ' + str(time.time() - start))
+            log.debug('Socket create finished')
             Printer.__init__(self)
 
     def send_job(self, zpl2):
         try:
-            syslog.syslog(syslog.LOG_INFO,'Send:' + zpl2)
+            log.debug('Send: {}'.format(zpl2))
             self.socket.sendall(zpl2.encode('iso8859-1'))
         except socket.timeout:
-            syslog.syslog(syslog.LOG_CRIT,'Error:Socket Timeout')
+            log.error('Send timeout')
             raise
         except:
-            lines = traceback.format_exc().splitlines()
-            text = re.sub("\s+","",traceback.format_exc().rstrip())
-            syslog.syslog(syslog.LOG_EMERG,"Error:%s -> %s" % (lines[-1],text))
+            log.exception()
             raise
         finally:
-            syslog.syslog(syslog.LOG_INFO,'End')
+            log.debug('Send finished')
 
     def request_info(self, command):
         try:
-            syslog.syslog(syslog.LOG_INFO,'Send:' + command)
+            log.debug('Request: {}'.format(command))
             self.socket.sendall(command.encode('iso8859-1'))
-
-            time.sleep(0.2)
 
             buf = b""
             while b'\x03' not in buf:
                 buf += self.socket.recv(4096)
 
-            syslog.syslog(syslog.LOG_INFO,'Return:' + buf.decode('iso8859-1').strip('\x02\x03\t\n\r').replace('  ',''))
+            log.debug('Request returned: {}'.format(
+                buf.decode('iso8859-1').strip('\x02\x03\t\n\r').replace('  ','')))
             return buf
-
         except socket.timeout:
-            syslog.syslog(syslog.LOG_CRIT,'Error:Socket Timeout')
-            pass
+            log.error('Send timeout')
+            raise
         except:
-            lines = traceback.format_exc().splitlines()
-            text = re.sub("\s+","",traceback.format_exc().rstrip())
-            syslog.syslog(syslog.LOG_EMERG,"Error:%s -> %s" % (lines[-1],text))
+            log.exception()
             raise
         finally:
-            syslog.syslog(syslog.LOG_INFO,'End')
+            log.debug('Request finished')
 
     def __del__(self):
         if 'self.socket' in locals():
             self.socket.close()
+
 
 class FilePrinter(Printer):
     def __init__(self, filename, mode='w', dpmm=12, ):
@@ -306,9 +280,13 @@ class FilePrinter(Printer):
 
     def send_job(self, zpl2):
         self.file.write(zpl2)
+    
+    def send_request(self, command):
+        raise NotImplementedError
 
     def __del__(self):
         self.file.close()
+
 
 class UDPPrinter(Printer):
     # TODO
