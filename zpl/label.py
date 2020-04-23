@@ -201,9 +201,9 @@ class Label:
         # TODO split into multiple functions?
         # TODO support all ^B barcode types
         # guard for only currently allowed bar codes
-        assert barcode_type in '23QU', "invalid barcode type"
+        assert barcode_type in '23AQU', "invalid barcode type"
 
-        if barcode_type == '2':
+        if barcode_type in '2A':
             barcode_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, orientation, height,
                                                   print_interpretation_line,
                                                   print_interpretation_line_above,
