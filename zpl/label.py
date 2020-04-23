@@ -186,6 +186,10 @@ class Label:
                 "characters and spaces"
             self.code += '"%s"' % name
 
+    def barcode_field_default(self, module_width, bar_width_ratio, height):
+        self.code += '^BY%s,%s,%s' % (module_width * self.dpmm,
+                                      bar_width_ratio,
+                                      height * self.dpmm)
     def write_barcode(self, height, barcode_type, orientation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N',
                        magnification=1, errorCorrection='Q', mask='7'):
