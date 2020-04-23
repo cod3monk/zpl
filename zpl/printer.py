@@ -29,7 +29,7 @@ class Printer:
 
     def get_printer_errors(self):
         if not self._info:
-            ret = self.request_info('~HQES').decode('iso8859-1').strip().split('\n')
+            ret = self.request_info('~HQES').decode('utf-8').strip().split('\n')
 
             warning = ret[4].strip()[-19:].split()
             descr_warning = []
@@ -117,28 +117,28 @@ class Printer:
 
     def get_mac(self):
         p = re.compile(r'(?:[0-9a-fA-F]:?){12}')
-        ret = self.request_info('~HQHA').decode('iso8859-1').strip()
+        ret = self.request_info('~HQHA').decode('utf-8').strip()
         return re.findall(p, ret)[0]
 
     def get_sn(self):
-        ret = self.request_info('~HQSN').decode('iso8859-1').strip().split('\n')
+        ret = self.request_info('~HQSN').decode('utf-8').strip().split('\n')
         return ret[3].strip()
 
     def get_print_head_test(self):
-        ret = self.request_info('~HQJT').decode('iso8859-1').strip()
+        ret = self.request_info('~HQJT').decode('utf-8').strip()
         return ret
 
     def get_maint_current_settings(self):
-        ret = self.request_info('~HQMA').decode('iso8859-1').strip()
+        ret = self.request_info('~HQMA').decode('utf-8').strip()
         return ret
 
     def get_print_meters(self):
-        ret = self.request_info('~HQOD').decode('iso8859-1').strip()
+        ret = self.request_info('~HQOD').decode('utf-8').strip()
         return ret
 
     def get_printer_info(self):
         if not self._info:
-            ret = self.request_info('~HI').decode('iso8859-1').strip()
+            ret = self.request_info('~HI').decode('utf-8').strip()
             m = re.match('\x02(?P<model>[^,]+),' +
                          r'(?P<version>[^,]+),' +
                          r'(?P<dpmm>[^,]+),' +
@@ -149,7 +149,7 @@ class Printer:
 
     def get_printer_status(self, reload=False):
         if not self._stat or reload:
-            ret = self.request_info('~HS').decode('iso8859-1').strip().split('\r\n')
+            ret = self.request_info('~HS').decode('utf-8').strip().split('\r\n')
 
             m = re.match('\x02(?P<interface>[^,]+),' +
                          r'(?P<paper_out>[^,]+),' +
@@ -186,7 +186,7 @@ class Printer:
 
     def get_printer_config(self, reload=False):
         if not self._cfg or reload:
-            ret = self.request_info('^XA^HH^XZ').decode('iso8859-1').strip('\x02\x03 \t\n\r').split('\r\n')
+            ret = self.request_info('^XA^HH^XZ').decode('utf-8').strip('\x02\x03 \t\n\r').split('\r\n')
             for l in ret:
                 l = l.strip()
 
@@ -236,7 +236,7 @@ class TCPPrinter(Printer):
     def send_job(self, zpl2):
         try:
             log.debug('Send: {}'.format(zpl2))
-            self.socket.sendall(zpl2.encode('iso8859-1'))
+            self.socket.sendall(zpl2.encode('utf-8'))
         except socket.timeout:
             log.error('Send timeout')
             raise
@@ -249,14 +249,14 @@ class TCPPrinter(Printer):
     def request_info(self, command):
         try:
             log.debug('Request: {}'.format(command))
-            self.socket.sendall(command.encode('iso8859-1'))
+            self.socket.sendall(command.encode('utf-8'))
 
             buf = b""
             while b'\x03' not in buf:
                 buf += self.socket.recv(4096)
 
             log.debug('Request returned: {}'.format(
-                buf.decode('iso8859-1').strip('\x02\x03\t\n\r').replace('  ','')))
+                buf.decode('utf-8').strip('\x02\x03\t\n\r').replace('  ','')))
             return buf
         except socket.timeout:
             log.error('Send timeout')
