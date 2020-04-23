@@ -38,6 +38,12 @@ class Label:
 
         self.code = "^XA"
 
+    def labelhome(self, x, y):
+        """
+        set label home at x and y (in millimeters)
+        """
+        self.code += "^LH%i,%i" % (x*self.dpmm, y*self.dpmm)
+
     def origin(self, x,y):
         """
         new block located at x and y (in millimeters)
