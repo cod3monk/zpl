@@ -38,17 +38,25 @@ class Label:
 
         self.code = "^XA"
 
-    def labelhome(self, x, y):
+    def labelhome(self, x, y, justification=None):
         """
         set label home at x and y (in millimeters)
+        justification is 0 for left, 1 for right, and 2 for auto
         """
         self.code += "^LH%i,%i" % (x*self.dpmm, y*self.dpmm)
+        if justification != None:
+            assert justification in '012', "invalid justification"
+            self.code += ',' + justification
 
-    def origin(self, x,y):
+    def origin(self, x, y, justification=None):
         """
         new block located at x and y (in millimeters)
+        justification is 0 for left, 1 for right, and 2 for auto
         """
         self.code += "^FO%i,%i" % (x*self.dpmm, y*self.dpmm)
+        if justification != None:
+            assert justification in '012', "invalid justification"
+            self.code += ',' + justification
 
     def endorigin(self):
         self.code += '^FS'
@@ -191,9 +199,16 @@ class Label:
                                       bar_width_ratio,
                                       height * self.dpmm)
 
-    def field_orientation(self, orientation):
+    def field_orientation(self, orientation, justification=None):
+        """
+        sets default field orientation, and optionally, justification
+        justification is 0 for left, 1 for right, and 2 for auto
+        """
         assert orientation in 'NRIB', "invalid orientation"
         self.code += '^FW%s' % orientation
+        if justification != None:
+            assert justification in '012', "invalid justification"
+            self.code += ',' + justification
 
     def write_barcode(self, height, barcode_type, orientation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N',
