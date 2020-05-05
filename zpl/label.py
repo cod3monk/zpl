@@ -115,8 +115,6 @@ class Label:
         for src, dest in remaps:
             ci_code += ',%i,%i' % (src, dest)
 
-        print(ci_code)
-
         assert re.match(ci_regex, ci_code), "invalid character set"
         self.code += ci_code
 
