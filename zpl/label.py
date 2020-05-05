@@ -97,6 +97,27 @@ class Label:
         assert re.match(r'[A-Z0-9]', font), "invalid font"
         self.code += "^CF%c,%i,%i" % (font, height*self.dpmm, width*self.dpmm)
 
+    def change_international_font(self, character_set=28, remaps=[]):
+        """
+        change the international font/encoding, that enables you to call
+        up the international character set you want to use for printing
+
+        "remaps" arg is a list of tuples with the number of the source
+        character and the substitute character destination.
+        """
+        ci_code = '^CI%i' % (character_set)
+
+        charset_regex_range = "(3[0-6]|[12]?[0-9])"
+        range_regex = "(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])"
+        ci_regex = r"^\^CI%s((\,%s,%s){1,})*$" % (
+            charset_regex_range, range_regex, range_regex)
+
+        for src, dest in remaps:
+            ci_code += ',%i,%i' % (src, dest)
+
+        assert re.match(ci_regex, ci_code), "invalid character set"
+        self.code += ci_code
+
     def _convert_image(self, image, width, height, compression_type='A'):
         '''
         converts *image* (of type PIL.Image) to a ZPL2 format
