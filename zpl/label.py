@@ -60,6 +60,16 @@ class Label:
 
     def endorigin(self):
         self.code += '^FS'
+    
+    def set_darkness(self, value):
+        """
+        sets the darkness of the printed label. The value input is integer between 0 - 30, 
+        which corresponds to (no darkness 0) or (full darkness 30)
+        """
+        assert (isinstance(value, int)), "The value must be an integer"
+        
+        assert (value >= 0 and value <= 30), "The value must be between 0 and 30"
+        self.code += "~SD" + str(value)
 
     def textblock(self, width, justification='C', lines=1):
         """
