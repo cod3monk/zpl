@@ -204,6 +204,10 @@ class Label:
     def print_graphic(self, name, scale_x=1, scale_y=1):
         self.code += "^XG%s,%i,%i" % (name, scale_x, scale_y)
 
+    def reverse_print(self, active='Y'):
+        assert active in ['Y', 'N'], "invalid parameter"
+        self.code += "^LR%s" % active
+
     def run_script(self, filename):
         self.code += "^XF%s^FS"
 
