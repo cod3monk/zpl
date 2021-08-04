@@ -97,6 +97,9 @@ class Label:
             self.code += "^FB%i,%i,%i,%c,%i" % (line_width*self.dpmm, max_line, line_spaces,
                                                 justification, hanging_indent)
         self.code += "^FD%s" % text
+        
+        if justification == 'C':
+            self.code += "\&"
 
     def set_default_font(self, height, width, font='0'):
         """
@@ -265,7 +268,7 @@ class Label:
                                                   print_interpretation_line_above)
         elif barcode_type == 'Q':
             assert orientation == 'N', 'QR Code orientation may only be N'
-            model = 2  # enchanced model, always recommended according to ZPL II documetation
+            model = 2  # enchanced model, always recommended according to ZPL II documentation
             assert magnification in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                                      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], \
                 'QR Code maginification may be 1 - 10.'
