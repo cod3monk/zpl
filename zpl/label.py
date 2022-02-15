@@ -139,7 +139,7 @@ class Label:
 
         returns data
         '''
-        image = image.resize((int(width*self.dpmm), int(height*self.dpmm)))
+        image = image.resize((int(width*self.dpmm), int(height*self.dpmm)), PIL.Image.NEAREST)
         # invert, otherwise we get reversed B/W
         # https://stackoverflow.com/a/38378828
         image = PIL.ImageOps.invert(image.convert('L')).convert('1')
