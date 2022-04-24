@@ -254,7 +254,7 @@ class Label:
         # TODO split into multiple functions?
         # TODO support all ^B barcode types
         # guard for only currently allowed bar codes
-        assert barcode_type in '23AQUCE', "invalid barcode type"
+        assert barcode_type in '23AQUCEX', "invalid barcode type"
 
         if barcode_type in '2A':
             barcode_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, orientation, height,
@@ -292,6 +292,8 @@ class Label:
             barcode_zpl = '^B%s%s,%i,%s,%s' % (barcode_type, orientation, height,
                                                print_interpretation_line,
                                                print_interpretation_line_above)
+        elif barcode_type == 'X':
+            barcode_zpl = '^B%s%s,%i,200' % (barcode_type, orientation, height)
 
         self.code += barcode_zpl
 
