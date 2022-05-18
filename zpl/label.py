@@ -249,54 +249,6 @@ class Label:
             self.code += ',' + justification
 
 
-    def archive_barcode_config(self,height, barcode_type, orientation, check_digit,
-                       print_interpretation_line, print_interpretation_line_above,
-                       magnification, errorCorrection, mask, mode):
-        # TODO split into multiple functions?
-        # TODO support all ^B barcode types
-
-        if barcode_type in '2A':
-            barcode_zpl = '^B%s%s,%i,%s,%s,%s' % (barcode_type, orientation, height,
-                                                  print_interpretation_line,
-                                                  print_interpretation_line_above,
-                                                  check_digit)
-        elif barcode_type == '3':
-            barcode_zpl = '^B%s%s,%s,%i,%s,%s' % (barcode_type, orientation,
-                                                  check_digit, height,
-                                                  print_interpretation_line,
-                                                  print_interpretation_line_above)
-        #QR code
-        elif barcode_type == 'Q':
-            assert orientation == 'N', 'QR Code orientation may only be N'
-            model = 2  # enchanced model, always recommended according to ZPL II documentation
-            assert magnification in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], \
-                'QR Code maginification may be 1 - 10.'
-            assert errorCorrection in 'HQML', 'QR Code errorCorrection may be H (more reliable, ' \
-                'less dense), Q, M or L (less reliable, more dense).'
-            assert mask in [1, 2, 3, 4, 5, 6, 7, '1', '2', '3', '4', '5', '6', '7'], \
-                'QR Code mask may be 1 - 7.'
-            barcode_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, orientation,
-                                                  model, magnification, errorCorrection, mask)
-        elif barcode_type == 'U':
-            barcode_zpl = '^B%s%s,%s,%s,%s,%s' % (barcode_type, orientation, height,
-                                                  print_interpretation_line,
-                                                  print_interpretation_line_above,
-                                                  check_digit)
-        elif barcode_type == 'C':
-            barcode_zpl = '^B%s%s,%i,%s,%s,%s,%s' % (barcode_type, orientation, height,
-                                                     print_interpretation_line,
-                                                     print_interpretation_line_above,
-                                                     check_digit, mode)
-        elif barcode_type == 'E':
-            barcode_zpl = '^B%s%s,%i,%s,%s' % (barcode_type, orientation, height,
-                                               print_interpretation_line,
-                                               print_interpretation_line_above)
-        elif barcode_type == 'X':
-            barcode_zpl = '^B%s%s,%i,200' % (barcode_type, orientation, height)
-
-        return barcode_zpl
-
     def _barcode_config(self,height, barcode_type, orientation, check_digit,
                        print_interpretation_line, print_interpretation_line_above,
                        magnification, errorCorrection, mask, mode):
@@ -304,10 +256,12 @@ class Label:
         # TODO support all ^B barcode types
 
         if barcode_type in '2A':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},{print_interpretation_line_above},{check_digit}'.format(**locals())
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+\
+                            '{print_interpretation_line_above},{check_digit}'.format(**locals())
         
         elif barcode_type == '3':
-            barcode_zpl = '^B{barcode_type}{orientation},{check_digit},{height:d},{print_interpretation_line},{print_interpretation_line_above}'.format(**locals())
+            barcode_zpl = '^B{barcode_type}{orientation},{check_digit},{height:d},{print_interpretation_line},'+\
+                            '{print_interpretation_line_above}'.format(**locals())
         
         #QR code
         elif barcode_type == 'Q':
@@ -323,13 +277,16 @@ class Label:
             barcode_zpl = '^B{barcode_type}{orientation},{model},{magnification},{errorCorrection},{mask}'.format(**locals())
         
         elif barcode_type == 'U':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},{print_interpretation_line_above},{check_digit}'.format(**locals())
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+\
+                            '{print_interpretation_line_above},{check_digit}'.format(**locals())
         
         elif barcode_type == 'C':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},{print_interpretation_line_above},{check_digit},{mode}'.format(**locals())
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+\
+                            '{print_interpretation_line_above},{check_digit},{mode}'.format(**locals())
         
         elif barcode_type == 'E':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},{print_interpretation_line_above}'.format(**locals())
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+ \
+                            '{print_interpretation_line_above}'.format(**locals())
         
         elif barcode_type == 'X':
             barcode_zpl = '^B{barcode_type}{orientation},{height:d},200'.format(**locals())
