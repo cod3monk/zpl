@@ -27,9 +27,12 @@ Example use
     l.endorigin()
 
     height += image_height + 5
-    l.origin(22, height)
-    l.write_barcode(height=70, barcode_type='U', check_digit='Y')
-    l.write_text('07000002198')
+    l.origin(10, height)
+    l.barcode('U', '07000002198', height=70, check_digit='Y')
+    l.endorigin()
+
+    l.origin(32, height)
+    l.barcode('Q', 'https://github.com/cod3monk/zpl/', magnification=5)
     l.endorigin()
 
     height += 20
