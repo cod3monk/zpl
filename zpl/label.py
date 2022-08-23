@@ -81,7 +81,7 @@ class Label:
         self.code += "^FB%i,%i,%i,%s,%i" % (width*self.dpmm, lines, 0, justification, 0)
 
     def write_text(self, text, char_height=None, char_width=None, font='0', orientation='N',
-                   line_width=None, max_line=1, line_spaces=0, justification='L', hanging_indent=0):
+                   line_width=None, max_line=1, line_spaces=0, justification='L', hanging_indent=0, qrcode=False):
         if char_height and char_width and font and orientation:
             assert orientation in 'NRIB', "invalid orientation"
             if re.match(r'^[A-Z0-9]$', font):
@@ -96,7 +96,10 @@ class Label:
             assert justification in "LCRJ", "invalid justification"
             self.code += "^FB%i,%i,%i,%c,%i" % (line_width*self.dpmm, max_line, line_spaces,
                                                 justification, hanging_indent)
-        self.code += "^FD%s" % text
+        if qrcode:
+            self.code += "^FDQA,%s" % text
+        else:
+            self.code += "^FD%s" % text
         
         if justification == 'C':
             self.code += "\&"
