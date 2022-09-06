@@ -259,11 +259,11 @@ class Label:
         # TODO support all ^B barcode types
 
         if barcode_type in '2A':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+\
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},' \
                             '{print_interpretation_line_above},{check_digit}'.format(**locals())
         
         elif barcode_type == '3':
-            barcode_zpl = '^B{barcode_type}{orientation},{check_digit},{height:d},{print_interpretation_line},'+\
+            barcode_zpl = '^B{barcode_type}{orientation},{check_digit},{height:d},{print_interpretation_line},' \
                             '{print_interpretation_line_above}'.format(**locals())
         
         #QR code
@@ -280,15 +280,15 @@ class Label:
             barcode_zpl = '^B{barcode_type}{orientation},{model},{magnification},{errorCorrection},{mask}'.format(**locals())
         
         elif barcode_type == 'U':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+\
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},' \
                             '{print_interpretation_line_above},{check_digit}'.format(**locals())
         
         elif barcode_type == 'C':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+\
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},' \
                             '{print_interpretation_line_above},{check_digit},{mode}'.format(**locals())
         
         elif barcode_type == 'E':
-            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},'+ \
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{print_interpretation_line},' \
                             '{print_interpretation_line_above}'.format(**locals())
         
         elif barcode_type == 'X':
