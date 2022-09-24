@@ -20,23 +20,25 @@ import io
 class Label:
     '''
     Used to build a ZPL2 label.
-
     all dimensions are given in millimeters and automatically converted to
     printer dot units.
     '''
 
-    def __init__(self, height, width=110.0, dpmm=12.0):
+    def __init__(self, height, width=110.0, dpmm=12.0, print_inverted=False):
         """
         Creates one (or more) ZPL2 labels.
 
         *height* and *width* are given in millimeters
         *dpmm* refers to dots per millimeter (e.g. 12 for 300dpi)
+        *print_inverted* rotates the label format by 180 degrees such that the label appears to be printed upside down
         """
         self.height = height
         self.width = width
         self.dpmm = dpmm
 
         self.code = "^XA"
+        if print_inverted:
+            self.code += "^POI"
 
     def labelhome(self, x, y, justification=None):
         """
@@ -74,7 +76,6 @@ class Label:
     def textblock(self, width, justification='C', lines=1):
         """
         new text block
-
         width of textblock in millimeters
         """
         assert justification in ['L','R','C','J']
@@ -107,7 +108,6 @@ class Label:
     def set_default_font(self, height, width, font='0'):
         """
         sets default font from here onward
-
         height and width are given in milimeters
         """
         assert re.match(r'[A-Z0-9]', font), "invalid font"
@@ -117,7 +117,6 @@ class Label:
         """
         change the international font/encoding, that enables you to call
         up the international character set you want to use for printing
-
         "remaps" arg is a list of tuples with the number of the source
         character and the substitute character destination.
         """
@@ -137,9 +136,7 @@ class Label:
     def _convert_image(self, image, width, height, compression_type='A'):
         '''
         converts *image* (of type PIL.Image) to a ZPL2 format
-
         compression_type can be one of ['A', 'B', 'C']
-
         returns data
         '''
         image = image.resize((int(width*self.dpmm), int(height*self.dpmm)), PIL.Image.NEAREST)
@@ -176,7 +173,6 @@ class Label:
     def write_graphic(self, image, width, height=0, compression_type="A"):
         """
         embeddes image with given width
-
         image has to be of type PIL.Image
         if height is not given, it will be chosen proportionally
         """
@@ -337,7 +333,6 @@ class Label:
     def preview(self, index=0):
         '''
         Opens rendered preview using Labelary API.
-
         Not all commands are supported, see http://labelary.com for more information.
         '''
         try:
@@ -388,3 +383,4 @@ def __main__():
 
 if __name__ == "__main__":
     __main__()
+    
