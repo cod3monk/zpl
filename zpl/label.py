@@ -37,6 +37,8 @@ class Label:
         self.dpmm = dpmm
 
         self.code = "^XA"
+        self.code += "^PW%i" % (width*dpmm)
+        self.code += "^LL%i" % (height*dpmm)
 
     def labelhome(self, x, y, justification=None):
         """
@@ -70,6 +72,12 @@ class Label:
         
         assert (value >= 0 and value <= 30), "The value must be between 0 and 30"
         self.code += "~SD" + str(value)
+
+    def zpl_raw(self, commands):
+        """
+        Send raw commands to the printer
+        """
+        self.code += commands
 
     def textblock(self, width, justification='C', lines=1):
         """
