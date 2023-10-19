@@ -342,7 +342,7 @@ class Label:
     def saveFormat(self, name):
         self.code= self.code[:3] + ("^DF%s^FS" % name) + self.code[3:]
 
-    def preview(self, index=0):
+    def preview(self, index=0, outputfile=None):
         '''
         Opens rendered preview using Labelary API.
 
@@ -352,9 +352,13 @@ class Label:
             url = 'http://api.labelary.com/v1/printers/%idpmm/labels/%fx%f/%i/' % (
                 self.dpmm, self.width/25.4, self.height/25.4, index)
             res = urlopen(url, self.dumpZPL().encode()).read()
-            Image.open(io.BytesIO(res)).show()
         except IOError:
             raise Exception("Invalid preview received, mostlikely bad ZPL2 code uploaded.")
+        if outputfile:
+            with open(outputfile,'wb') as output:
+                output.write(res)
+        else:
+            Image.open(io.BytesIO(res)).show()
 
 
 def __main__():
