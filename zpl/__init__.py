@@ -3,4 +3,4 @@
 from .label import *
 from .printer import *
 
-__version__ = '0.1.11'
+__version__ = '0.1.10'
