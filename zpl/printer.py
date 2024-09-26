@@ -12,9 +12,9 @@ import sys
 log = logging.getLogger(__name__)
 
 class Printer:
-    '''
+    """
     This abstract Printer class is used to interface with ZPL2 printers.
-    '''
+    """
 
     def __init__(self):
         self._info = {}
@@ -207,18 +207,18 @@ class Printer:
         return length
 
     def get_dpi(self):
-        '''returns dots per inch of printer.'''
+        """returns dots per inch of printer."""
         return self.get_dpmm()*25
 
     def get_dpmm(self):
-        '''returns dots per millimeter of printer.'''
+        """returns dots per millimeter of printer."""
         return int(self.get_printer_info()['dpmm'])
 
 
 class TCPPrinter(Printer):
-    '''
-    This class allows to interface with a ZPL2 printer via a TCP port.
-    '''
+    """
+    This class interfaces with a ZPL2 printer via a TCP port.
+    """
     def __init__(self, host, port=9100, socket_timeout=5):
         try:
             log.debug('Socket create: {}:{}'.format(host, port))
