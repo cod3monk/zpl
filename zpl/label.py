@@ -117,7 +117,7 @@ class Label:
             self.code += "^FD%s" % text
         
         if justification == 'C':
-            self.code += "\&"
+            self.code += r"\&"
 
     def set_default_font(self, height, width, font='0'):
         """
