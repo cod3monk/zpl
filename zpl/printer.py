@@ -240,8 +240,8 @@ class TCPPrinter(Printer):
         except socket.timeout:
             log.error('Send timeout')
             raise
-        except:
-            log.exception()
+        except Exception as error:
+            log.exception(error)
             raise
         finally:
             log.debug('Send finished')
@@ -261,8 +261,8 @@ class TCPPrinter(Printer):
         except socket.timeout:
             log.error('Send timeout')
             raise
-        except:
-            log.exception()
+        except Exception as error:
+            log.exception(error)
             raise
         finally:
             log.debug('Request finished')
@@ -275,11 +275,17 @@ class TCPPrinter(Printer):
 class FilePrinter(Printer):
     def __init__(self, filename, mode='w', dpmm=12, ):
         assert mode in 'wa', "only write 'w' or append 'a' is supported as mode"
-        self.file = open(filename, mode)
+        self.file_name = filename
+        self.file_mode = mode
         self.dpmm = dpmm
 
     def send_job(self, zpl2):
-        self.file.write(zpl2)
+        self.file = open(self.file_name, self.file_mode)
+        if isinstance(zpl2, zpl.label.Label):
+            self.file.write(zpl2.dumpZPL())
+        else:
+            self.file.write(zpl2)
+        self.file.close()
     
     def send_request(self, command):
         raise NotImplementedError
