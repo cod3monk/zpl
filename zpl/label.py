@@ -7,10 +7,10 @@ from __future__ import print_function
 from PIL import Image
 import re
 import PIL.ImageOps
-import sys
 import math
-import webbrowser
 import os.path
+
+from zpl.utils import compress_zpl_data
 try:
     from urllib.request import urlopen
 except ImportError:
@@ -167,14 +167,7 @@ class Label:
         # https://stackoverflow.com/a/38378828
         image = PIL.ImageOps.invert(image.convert('L')).convert('1')
 
-        if compression_type == "A":
-            # return image.tobytes().encode('hex').upper()
-            return image.tobytes().hex().upper()
-        # TODO this is not working
-        #elif compression_type == "B":
-        #    return image.tostring()
-        else:
-            raise Exception("unsupported compression type")
+        return compress_zpl_data(image.tobytes().hex().upper())
 
     def upload_graphic(self, name, image, width, height=0):
         """
@@ -235,7 +228,7 @@ class Label:
         """
         assert color in 'BW', "invalid color"
         assert rounding <= 8, "invalid rounding"
-        self.code += "^GB%i,%i,%i,%c,%i" % (width, height, thickness, color, rounding)
+        self.code += "^GB%i,%i,%i,%c,%i" % (width*self.dpmm, height*self.dpmm, thickness*self.dpmm, color, rounding)
 
     def draw_ellipse(self, width, height, thickness=1, color='B'):
         """
@@ -245,7 +238,7 @@ class Label:
         *color* can be either "B" or "W"
         """
         assert color in 'BW', "invalid color"
-        self.code += "^GE%i,%i,%i,%c" % (width, height, thickness, color)
+        self.code += "^GE%i,%i,%i,%c" % (width*self.dpmm, height*self.dpmm, thickness*self.dpmm, color)
 
     def print_graphic(self, name, scale_x=1, scale_y=1):
         """
