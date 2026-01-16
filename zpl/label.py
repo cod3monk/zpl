@@ -304,7 +304,8 @@ class Label:
 
     def _barcode_config(self,height, barcode_type, orientation, check_digit,
                        print_interpretation_line, print_interpretation_line_above,
-                       magnification, errorCorrection, mask, mode):
+                       magnification, errorCorrection, mask, mode,
+                       columns, rows, truncate):
         # TODO split into multiple functions?
         # TODO support all ^B barcode types
 
@@ -315,6 +316,19 @@ class Label:
         elif barcode_type == '3':
             barcode_zpl = '^B{barcode_type}{orientation},{check_digit},{height:d},{print_interpretation_line},' \
                             '{print_interpretation_line_above}'.format(**locals())
+            
+        #PDF417
+        elif barcode_type == '7':
+            assert errorCorrection in [0, 1, 2, 3, 4, 5, 6, 7, 8, 
+                                       '0', '1', '2', '3', '4', '5', '6', '7', '8'], \
+                'Error detection and correction may be 0 (error detection only), ' \
+                'or 1 - 8 (error detection and correction)'
+            assert columns is None or 1<= columns <= 30, 'Columns must be None or an integer from 1-30'
+            assert rows is None or 3<= rows <= 90, 'Rows must be None or an integer from 3-90'
+            assert truncate in 'NY', 'Truncation may be N (no truncation) or Y (perform truncation)'
+            columns = columns or '' #Replace empty values with blank string. 
+            rows = rows or ''       #Leaving these blank allows the barcode to be dynamically sized based on encoded data size 
+            barcode_zpl = '^B{barcode_type}{orientation},{height:d},{errorCorrection},{columns},{rows},{truncate}'.format(**locals())
         
         #QR code
         elif barcode_type == 'Q':
@@ -350,7 +364,8 @@ class Label:
 
     def write_barcode(self, height, barcode_type, orientation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N',
-                       magnification=1, errorCorrection='Q', mask='7', mode='N'):
+                       magnification=1, errorCorrection='Q', mask='7', mode='N', 
+                       columns=None, rows=None, truncate='N'):
 
         print('The write_barcode() function is kept for backward compatibility, it is recommended to use the barcode() function instead.')
 
@@ -359,18 +374,21 @@ class Label:
 
 
         self.code += self._barcode_config(height, barcode_type, orientation, check_digit, \
-            print_interpretation_line, print_interpretation_line_above, magnification, errorCorrection, mask, mode)
+            print_interpretation_line, print_interpretation_line_above, magnification, errorCorrection, mask, mode, 
+            columns, rows, truncate)
 
 
     def barcode(self, barcode_type, code, height=70, orientation='N', check_digit='N',
                        print_interpretation_line='Y', print_interpretation_line_above='N',
-                       magnification=1, errorCorrection='Q', mask='7', mode='N'):
+                       magnification=1, errorCorrection='Q', mask='7', mode='N', 
+                       columns=None, rows=None, truncate='N'):
         """
         Creates a barcode of selected type
 
         *barcode_type*
         '2': Interleaved 2 of 5 Bar Code
         '3': Code 39 Bar Code
+        '7': PDF417 Bar Code
         'Q': QR Code Bar Code
         'U': UPC-A Bar Code
         'C': Code 128 Bar Code (*mode* can be 'N' = No mode, 'U' = UCC Case Mode, 'A' = Automatic Mode, 'D' = UCC/EAN Mode)
@@ -379,13 +397,14 @@ class Label:
         """
 
         # guard for only currently allowed bar codes
-        assert barcode_type in '23AQUCEX', "invalid barcode type"
+        assert barcode_type in '237AQUCEX', "invalid barcode type"
 
         self.code += self._barcode_config(height, barcode_type, orientation, check_digit, \
-            print_interpretation_line, print_interpretation_line_above, magnification, errorCorrection, mask, mode)
+            print_interpretation_line, print_interpretation_line_above, magnification, errorCorrection, mask, mode, 
+            columns, rows, truncate)
 
         #write the actual code
-        if barcode_type in '23AUCEX':
+        if barcode_type in '237AUCEX':
             self.code += "^FD{}".format(code)
         elif barcode_type in 'Q':
             self.code += "^FD{}A,{}".format(errorCorrection,code)
@@ -444,6 +463,13 @@ def __main__():
     l.origin(22, height)
     l.write_barcode(height=None, barcode_type='Q', magnification=4)
     l.write_text('https://github.com/cod3monk/zpl')
+    l.endorigin()
+
+    height += 20
+    l.origin(22, height)
+    l.barcode_field_default(module_width=1/6, bar_width_ratio=2, height=5)
+    l.barcode(height=15, barcode_type='7', errorCorrection=5, columns=10, truncate='N',
+               code='This is a PDF417 barcode like the ones found on FedEx labels. It supports encoding over 1000 characters!')
     l.endorigin()
 
     height += 20
